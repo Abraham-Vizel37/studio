@@ -1,4 +1,3 @@
-
 'use server';
 
 import { generateCodeExamples, type CodeExampleInput, type CodeExampleOutput } from '@/ai/flows/code-example-generation';
@@ -20,30 +19,35 @@ export async function handleGenerateComparison(
   prevState: GenerateComparisonActionState,
   formData: FormData
 ): Promise<GenerateComparisonActionState> {
-  const rawFormData = {
-    familiarFramework: formData.get('familiarFramework'),
-    targetFramework: formData.get('targetFramework'),
-    componentToCompare: formData.get('componentToCompare'),
+  const familiarFrameworkValue = formData.get('familiarFramework');
+  const targetFrameworkValue = formData.get('targetFramework');
+  const componentToCompareValue = formData.get('componentToCompare');
+
+  const dataForValidation = {
+    familiarFramework: typeof familiarFrameworkValue === 'string' ? familiarFrameworkValue : '',
+    targetFramework: typeof targetFrameworkValue === 'string' ? targetFrameworkValue : '',
+    // Ensure componentToCompare is also treated as string or empty string
+    componentToCompare: typeof componentToCompareValue === 'string' ? componentToCompareValue : '',
   };
 
-  const validatedFields = GenerateComparisonInputSchema.safeParse(rawFormData);
+  const validatedFields = GenerateComparisonInputSchema.safeParse(dataForValidation);
 
   if (!validatedFields.success) {
-    // validatedFields.error.flatten().fieldErrors is an object, not an array.
-    // Use Object.entries() to iterate over its key-value pairs.
     const fieldErrors = validatedFields.error.flatten().fieldErrors;
     const errorMessages = Object.entries(fieldErrors)
       .map(([field, errors]) => {
-        // errors is an array of strings for each field
         if (errors && errors.length > 0) {
-          return `${field}: ${errors.join(', ')}`;
+          // Capitalize field name for better readability
+          const formattedField = field.charAt(0).toUpperCase() + field.slice(1)
+            .replace(/([A-Z])/g, ' $1') // Add space before capital letters for camelCase fields
+            .trim();
+          return `${formattedField}: ${errors.join(', ')}`;
         }
         return null;
       })
-      .filter(message => message !== null) // Filter out any null entries (though unlikely for fieldErrors)
+      .filter(message => message !== null)
       .join('; ');
     
-    // Also consider form-wide errors if any
     const formErrors = validatedFields.error.flatten().formErrors;
     let fullErrorMessage = errorMessages;
     if (formErrors.length > 0) {
@@ -52,7 +56,7 @@ export async function handleGenerateComparison(
 
     return {
       data: null,
-      error: fullErrorMessage || "Validation failed.", // Fallback message if no specific errors are formatted
+      error: fullErrorMessage || "Validation failed.",
     };
   }
   
@@ -71,6 +75,8 @@ export async function handleGenerateComparison(
     }
   } catch (error) {
     console.error("Error generating comparison:", error);
-    return { data: null, error: "Failed to generate comparison. Please try again later.", message: "An unexpected error occurred." };
+    // Check if error is an instance of Error to safely access message property
+    const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred.";
+    return { data: null, error: `Failed to generate comparison: ${errorMessage}. Please try again later.`, message: "An unexpected error occurred." };
   }
 }
