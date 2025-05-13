@@ -21,9 +21,6 @@ const formSchema = z
   })
   .refine(
     (data) => {
-      // This validation should only fail if both frameworks are selected and are the same.
-      // If one or both are not selected (i.e., empty string from defaultValues),
-      // the individual field's min(1) validation will catch it.
       if (data.familiarFramework && data.targetFramework) {
         return data.familiarFramework !== data.targetFramework;
       }
@@ -31,7 +28,7 @@ const formSchema = z
     },
     {
       message: 'Target framework must be different from familiar framework.',
-      path: ['targetFramework'], // Apply the error to the targetFramework field
+      path: ['targetFramework'], 
     }
   );
 
@@ -95,22 +92,19 @@ export function FrameworkForm({ formAction, initialState, isActionPending }: Fra
     formData.append('familiarFramework', values.familiarFramework);
     formData.append('targetFramework', values.targetFramework);
     formData.append('componentToCompare', values.componentToCompare);
-    formAction(formData);
+    
+    React.startTransition(() => {
+      formAction(formData);
+    });
   };
 
   const familiarFrameworkValue = form.watch('familiarFramework');
   
   React.useEffect(() => {
-    // When familiarFramework changes, trigger validation for targetFramework.
-    // This allows the object-level refine to run and check if frameworks are different.
-    // Only trigger if targetFramework has been touched or form submitted to avoid premature errors,
-    // or simply trigger if you want immediate feedback.
-    // For this case, let's trigger validation if familiarFramework has a value,
-    // as the refine logic handles empty states appropriately.
     if (familiarFrameworkValue) {
       form.trigger('targetFramework');
     }
-  }, [familiarFrameworkValue, form.trigger]);
+  }, [familiarFrameworkValue, form]);
 
 
   return (
@@ -133,7 +127,6 @@ export function FrameworkForm({ formAction, initialState, isActionPending }: Fra
                   <Select
                     onValueChange={(value) => {
                       field.onChange(value);
-                      // form.trigger('targetFramework'); // Removed context setting here as well
                     }}
                     defaultValue={field.value}
                   >
@@ -204,5 +197,3 @@ export function FrameworkForm({ formAction, initialState, isActionPending }: Fra
     </Card>
   );
 }
-
-    

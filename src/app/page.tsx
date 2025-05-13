@@ -10,7 +10,7 @@ import { handleGenerateComparison, type GenerateComparisonActionState } from '@/
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Terminal } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { CodeExampleResult } from '@/ai/flows/code-example-generation'; // Updated import
+import type { CodeExampleResult } from '@/ai/flows/code-example-generation'; 
 
 const initialState: GenerateComparisonActionState = {
   data: null,
@@ -18,11 +18,10 @@ const initialState: GenerateComparisonActionState = {
 };
 
 export default function Home() {
-  const [state, formAction] = React.useActionState(handleGenerateComparison, initialState);
+  const [state, formAction, isActionPending] = React.useActionState(handleGenerateComparison, initialState);
   const { toast } = useToast();
   const [currentComparison, setCurrentComparison] = useState<CodeExampleResult | null>(null);
-  // formValues is no longer needed for ComparisonDisplay as names are in CodeExampleResult
-
+  
   useEffect(() => {
     if (state.error) {
       toast({
@@ -42,17 +41,6 @@ export default function Home() {
     }
   }, [state, toast]);
 
-  // The formAction from useActionState already handles pending state.
-  // If you need to do something before/after the action related to form values,
-  // it's usually done within the action itself or via useEffect on `state`.
-  // For this specific case where we just needed formValues for display,
-  // and now `CodeExampleResult` includes names, this wrapper might be simplified or removed
-  // if no other pre-action logic is needed from the client side.
-  // Let's keep the form action directly from useActionState for FrameworkForm.
-
-  const isEffectivelyPending =  (React.useContext(React.Fragment||React.SuspenseContext) as any)?._isInTransition || false;
-
-
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
@@ -65,9 +53,9 @@ export default function Home() {
         </div>
 
         <FrameworkForm
-          formAction={formAction} // Directly use formAction from useActionState
+          formAction={formAction}
           initialState={initialState}
-          isActionPending={isEffectivelyPending}
+          isActionPending={isActionPending}
         />
 
         {state.error && !currentComparison && (
@@ -80,7 +68,6 @@ export default function Home() {
 
         {currentComparison && (
           <>
-            {/* Pass only currentComparison which now includes framework names */}
             <ComparisonDisplay data={currentComparison} />
             <FeedbackForm />
           </>
@@ -90,3 +77,4 @@ export default function Home() {
     </div>
   );
 }
+
