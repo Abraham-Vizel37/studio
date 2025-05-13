@@ -1,7 +1,6 @@
 'use client';
 
-import { useFormState } from 'react-dom';
-import { useEffect, useState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { Header } from '@/components/framemapper/Header';
 import { Footer } from '@/components/framemapper/Footer';
 import { FrameworkForm } from '@/components/framemapper/FrameworkForm';
@@ -19,7 +18,7 @@ const initialState: GenerateComparisonActionState = {
 };
 
 export default function Home() {
-  const [state, formAction] = useFormState(handleGenerateComparison, initialState);
+  const [state, formAction] = useActionState(handleGenerateComparison, initialState);
   const { toast } = useToast();
   const [currentComparison, setCurrentComparison] = useState<CodeExampleOutput | null>(null);
   const [formValues, setFormValues] = useState<{ familiarFramework: string, targetFramework: string } | null>(null);
@@ -47,7 +46,7 @@ export default function Home() {
       // For simplicity, let's assume FrameworkForm can provide these if needed, or we extract from state.data if possible (not in this AI output).
       // We will assume `familiarFramework` and `targetFramework` were part of the form data that `handleGenerateComparison` could access.
       // To make it available for ComparisonDisplay, we need to capture it when the form is submitted.
-      // This part is tricky with useFormState if we don't pass the raw form values back.
+      // This part is tricky with useActionState if we don't pass the raw form values back.
       // A simpler approach: store the relevant form inputs in local state on successful generation.
       // The prompt for `generateCodeExamples` uses framework1 and framework2 from input, which are the familiar and target.
       // We will capture these in the FrameworkForm or Page to pass to ComparisonDisplay.
