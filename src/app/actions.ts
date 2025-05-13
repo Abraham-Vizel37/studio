@@ -1,3 +1,4 @@
+
 'use server';
 
 import { generateCodeExamples, type CodeExampleInput, type CodeExampleOutput } from '@/ai/flows/code-example-generation';
@@ -28,9 +29,30 @@ export async function handleGenerateComparison(
   const validatedFields = GenerateComparisonInputSchema.safeParse(rawFormData);
 
   if (!validatedFields.success) {
+    // validatedFields.error.flatten().fieldErrors is an object, not an array.
+    // Use Object.entries() to iterate over its key-value pairs.
+    const fieldErrors = validatedFields.error.flatten().fieldErrors;
+    const errorMessages = Object.entries(fieldErrors)
+      .map(([field, errors]) => {
+        // errors is an array of strings for each field
+        if (errors && errors.length > 0) {
+          return `${field}: ${errors.join(', ')}`;
+        }
+        return null;
+      })
+      .filter(message => message !== null) // Filter out any null entries (though unlikely for fieldErrors)
+      .join('; ');
+    
+    // Also consider form-wide errors if any
+    const formErrors = validatedFields.error.flatten().formErrors;
+    let fullErrorMessage = errorMessages;
+    if (formErrors.length > 0) {
+        fullErrorMessage = formErrors.join('; ') + (errorMessages ? '; ' + errorMessages : '');
+    }
+
     return {
       data: null,
-      error: validatedFields.error.flatten().fieldErrors.map(([field, errors]) => `${field}: ${errors.join(', ')}`).join('; '),
+      error: fullErrorMessage || "Validation failed.", // Fallback message if no specific errors are formatted
     };
   }
   
