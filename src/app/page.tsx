@@ -18,7 +18,7 @@ const initialState: GenerateComparisonActionState = {
 };
 
 export default function Home() {
-  const [state, formAction] = useActionState(handleGenerateComparison, initialState);
+  const [state, formAction, isActionPending] = useActionState(handleGenerateComparison, initialState);
   const { toast } = useToast();
   const [currentComparison, setCurrentComparison] = useState<CodeExampleOutput | null>(null);
   const [formValues, setFormValues] = useState<{ familiarFramework: string, targetFramework: string } | null>(null);
@@ -39,27 +39,16 @@ export default function Home() {
     }
     if (state.data) {
       setCurrentComparison(state.data);
-      // This is a bit of a hack to get the framework names for display
-      // Ideally, the form data would be more directly accessible or returned by the action
-      // For now, we'll try to get it from a FormData instance if needed, or better, pass it through state.
-      // The formAction now uses FormData, so we'd need to store the input values separately if we want them here.
-      // For simplicity, let's assume FrameworkForm can provide these if needed, or we extract from state.data if possible (not in this AI output).
-      // We will assume `familiarFramework` and `targetFramework` were part of the form data that `handleGenerateComparison` could access.
-      // To make it available for ComparisonDisplay, we need to capture it when the form is submitted.
-      // This part is tricky with useActionState if we don't pass the raw form values back.
-      // A simpler approach: store the relevant form inputs in local state on successful generation.
-      // The prompt for `generateCodeExamples` uses framework1 and framework2 from input, which are the familiar and target.
-      // We will capture these in the FrameworkForm or Page to pass to ComparisonDisplay.
-      // Let's extract from a hypothetical scenario or a slightly modified action.
-      // For now, this is simplified.
     }
   }, [state, toast]);
 
-  // Wrapper for form action to capture submitted form values
+  // Wrapper for form action to capture submitted form values for display
   const wrappedFormAction = (formData: FormData) => {
     const familiar = formData.get('familiarFramework') as string;
     const target = formData.get('targetFramework') as string;
-    setFormValues({ familiarFramework: familiar, targetFramework: target });
+    if (familiar && target) {
+      setFormValues({ familiarFramework: familiar, targetFramework: target });
+    }
     formAction(formData);
   };
 
@@ -75,9 +64,13 @@ export default function Home() {
           </p>
         </div>
 
-        <FrameworkForm formAction={wrappedFormAction} initialState={initialState} />
+        <FrameworkForm 
+          formAction={wrappedFormAction} 
+          initialState={initialState} 
+          isActionPending={isActionPending} 
+        />
 
-        {state.error && (
+        {state.error && !currentComparison && ( // Show general error if no comparison is displayed yet
           <Alert variant="destructive" className="mt-8 max-w-2xl mx-auto">
             <Terminal className="h-4 w-4" />
             <AlertTitle>Error Generating Comparison</AlertTitle>
