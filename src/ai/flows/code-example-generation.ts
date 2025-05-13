@@ -118,38 +118,42 @@ For {{{framework1}}}:
 1. Determine if {{{framework1}}} is primarily 'code'-based or 'spreadsheet'-based. For example, "React" is code-based, "Microsoft Excel" is spreadsheet-based.
 2. Set 'framework1Type' to either "code" or "spreadsheet".
 3. If 'framework1Type' is "code":
-    - For 'content1', provide a concise, functional code example demonstrating {{{component}}} in {{{framework1}}}.
+    - For 'content1', provide a concise, functional code example demonstrating {{{component}}} in {{{framework1}}}. Ensure the code is well-formatted (e.g. markdown code block).
     - Do not set 'imagePrompt1'.
 4. If 'framework1Type' is "spreadsheet":
     - For 'content1', provide clear, step-by-step textual instructions on how to achieve {{{component}}} in {{{framework1}}}. Number the steps.
-    - For 'imagePrompt1', if an image would be helpful to illustrate the steps or the result, provide a detailed textual prompt in clear English for an image generation model. This prompt should aim to generate a realistic, screenshot-like image of the {{{framework1}}} interface (e.g., Microsoft Excel or Google Sheets), clearly showing {{{component}}} in action. The prompt must:
-        * Explicitly state the name of the spreadsheet software (e.g., "A realistic screenshot of Microsoft Excel showing...").
-        * Describe relevant UI elements like cells (e.g., A1, B2), rows, columns, the formula bar, and any sample data pertinent to {{{component}}}.
-        * Detail any formulas or specific cell content, ensuring they are highlighted or clearly visible in the description for the image.
-        * Describe a clean, easy-to-understand layout.
-        * Ensure any text depicted (like in cells or the formula bar) is described as being clear and legible.
-        * Example image prompt for {{{framework1}}} (if it's a spreadsheet software) and {{{component}}} like 'SUM function': "Realistic screenshot of a {{{framework1}}} spreadsheet. Cell C1 shows the formula '=SUM(A1:B1)' and displays the calculated sum. Cell A1 contains the number 10, cell B1 contains the number 20. The formula bar at the top clearly displays '=SUM(A1:B1)'. The active cell is C1, which shows the result '30'. Column headers A, B, C and row header 1 are visible."
+    - For 'imagePrompt1', if an image would be helpful to illustrate the steps or the result, provide a detailed textual prompt in clear English for an image generation model. This prompt should aim to generate a high-quality, realistic, screenshot-like image of the {{{framework1}}} interface (e.g., Microsoft Excel or Google Sheets), clearly showing {{{component}}} in action, as if taken from a tutorial or official documentation. The prompt must:
+        * Explicitly state the name of the spreadsheet software (e.g., "A realistic, documentation-style screenshot of Microsoft Excel showing...").
+        * Clearly depict the main spreadsheet grid with visible cells (e.g., A1, B2), rows, and columns.
+        * Include typical UI elements like the formula bar, ribbon or toolbar (simplified, but characteristic of the software), and sheet tabs at the bottom.
+        * Show relevant sample data within the cells pertinent to demonstrating {{{component}}}.
+        * If {{{component}}} involves a formula, the formula bar should clearly display it, and the result should be visible in the corresponding cell. The active cell showing the result or the primary focus of the component should be visually apparent (e.g., highlighted).
+        * All text (in cells, formula bar, UI elements) must be sharp, clear, and easily legible English.
+        * The overall layout should be clean, professional, and easy to understand, focusing on the specific {{{component}}}. Avoid unnecessary clutter.
+        * Example image prompt for {{{framework1}}} (if it's a spreadsheet software like Microsoft Excel) and {{{component}}} like 'SUM function': "High-quality, realistic screenshot of a {{{framework1}}} spreadsheet, resembling an official tutorial image. Cell C1 is active, showing the result '30'. The formula bar at the top clearly displays '=SUM(A1:B1)'. Cell A1 contains '10', cell B1 contains '20'. Column headers A, B, C and row header 1 are visible. A simplified ribbon/toolbar characteristic of {{{framework1}}} is visible at the top, and sheet tabs at the bottom."
         * If an image is not suitable or a clear, detailed prompt fitting these criteria cannot be generated, omit 'imagePrompt1'.
 
 For {{{framework2}}}:
 1. Determine if {{{framework2}}} is primarily 'code'-based or 'spreadsheet'-based.
 2. Set 'framework2Type' to either "code" or "spreadsheet".
 3. If 'framework2Type' is "code":
-    - For 'content2', provide a concise, functional code example demonstrating {{{component}}} in {{{framework2}}}.
+    - For 'content2', provide a concise, functional code example demonstrating {{{component}}} in {{{framework2}}}. Ensure the code is well-formatted (e.g. markdown code block).
     - Do not set 'imagePrompt2'.
 4. If 'framework2Type' is "spreadsheet":
     - For 'content2', provide clear, step-by-step textual instructions on how to achieve {{{component}}} in {{{framework2}}}. Number the steps.
-    - For 'imagePrompt2', if an image would be helpful, provide a detailed textual prompt in clear English for an image generation model. This prompt should aim to generate a realistic, screenshot-like image of the {{{framework2}}} interface (e.g., Microsoft Excel or Google Sheets), clearly showing {{{component}}} in action. The prompt must:
-        * Explicitly state the name of the spreadsheet software (e.g., "A realistic screenshot of Google Sheets showing...").
-        * Describe relevant UI elements like cells (e.g., A1, B2), rows, columns, the formula bar, and any sample data pertinent to {{{component}}}.
-        * Detail any formulas or specific cell content, ensuring they are highlighted or clearly visible in the description for the image.
-        * Describe a clean, easy-to-understand layout.
-        * Ensure any text depicted (like in cells or the formula bar) is described as being clear and legible.
-        * Example image prompt for {{{framework2}}} (if it's a spreadsheet software) and {{{component}}} like 'AVERAGE function': "Realistic screenshot of a {{{framework2}}} spreadsheet. Cell D1 shows the formula '=AVERAGE(A1:C1)' and displays the result. Cells A1, B1, C1 contain sample numbers 5, 10, 15 respectively. The formula bar at the top clearly displays '=AVERAGE(A1:C1)'. The active cell is D1, which shows the result '10'. Column headers A, B, C, D and row header 1 are visible."
+    - For 'imagePrompt2', if an image would be helpful, provide a detailed textual prompt in clear English for an image generation model. This prompt should aim to generate a high-quality, realistic, screenshot-like image of the {{{framework2}}} interface (e.g., Microsoft Excel or Google Sheets), clearly showing {{{component}}} in action, as if taken from a tutorial or official documentation. The prompt must:
+        * Explicitly state the name of the spreadsheet software (e.g., "A realistic, documentation-style screenshot of Google Sheets showing...").
+        * Clearly depict the main spreadsheet grid with visible cells (e.g., A1, B2), rows, and columns.
+        * Include typical UI elements like the formula bar, ribbon or toolbar (simplified, but characteristic of the software), and sheet tabs at the bottom.
+        * Show relevant sample data within the cells pertinent to demonstrating {{{component}}}.
+        * If {{{component}}} involves a formula, the formula bar should clearly display it, and the result should be visible in the corresponding cell. The active cell showing the result or the primary focus of the component should be visually apparent (e.g., highlighted).
+        * All text (in cells, formula bar, UI elements) must be sharp, clear, and easily legible English.
+        * The overall layout should be clean, professional, and easy to understand, focusing on the specific {{{component}}}. Avoid unnecessary clutter.
+        * Example image prompt for {{{framework2}}} (if it's a spreadsheet software like Google Sheets) and {{{component}}} like 'AVERAGE function': "High-quality, realistic screenshot of a {{{framework2}}} spreadsheet, resembling an official tutorial image. Cell D1 is active, showing the result '10'. The formula bar at the top clearly displays '=AVERAGE(A1:C1)'. Cells A1, B1, C1 contain sample numbers 5, 10, 15 respectively. Column headers A, B, C, D and row header 1 are visible. A simplified menu bar characteristic of {{{framework2}}} is visible at the top, and sheet tabs at the bottom."
         * If an image is not suitable or a clear, detailed prompt fitting these criteria cannot be generated, omit 'imagePrompt2'.
 
 Finally, for 'explanation', provide an overall comparison of how {{{framework1}}} and {{{framework2}}} handle {{{component}}}. Discuss similarities, differences, learning curves, and conceptual model shifts. Make this explanation insightful for someone familiar with one framework learning the other.
-Focus on providing practical and accurate information.
+Focus on providing practical and accurate information. Ensure code examples are complete and functional. Ensure spreadsheet instructions are clear and actionable.
 `,
 });
 
@@ -171,3 +175,6 @@ const generateCodeExamplesFlow = ai.defineFlow(
     return output;
   }
 );
+
+
+    
