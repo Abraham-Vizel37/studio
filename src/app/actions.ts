@@ -1,6 +1,6 @@
 'use server';
 
-import { generateCodeExamples, type CodeExampleInput, type CodeExampleOutput } from '@/ai/flows/code-example-generation';
+import { generateCodeExamples, type CodeExampleInput, type CodeExampleResult } from '@/ai/flows/code-example-generation';
 import { z } from 'zod';
 
 const GenerateComparisonInputSchema = z.object({
@@ -10,7 +10,7 @@ const GenerateComparisonInputSchema = z.object({
 });
 
 export type GenerateComparisonActionState = {
-  data: CodeExampleOutput | null;
+  data: CodeExampleResult | null;
   error: string | null;
   message?: string;
 };
@@ -26,7 +26,6 @@ export async function handleGenerateComparison(
   const dataForValidation = {
     familiarFramework: typeof familiarFrameworkValue === 'string' ? familiarFrameworkValue : '',
     targetFramework: typeof targetFrameworkValue === 'string' ? targetFrameworkValue : '',
-    // Ensure componentToCompare is also treated as string or empty string
     componentToCompare: typeof componentToCompareValue === 'string' ? componentToCompareValue : '',
   };
 
@@ -37,9 +36,8 @@ export async function handleGenerateComparison(
     const errorMessages = Object.entries(fieldErrors)
       .map(([field, errors]) => {
         if (errors && errors.length > 0) {
-          // Capitalize field name for better readability
           const formattedField = field.charAt(0).toUpperCase() + field.slice(1)
-            .replace(/([A-Z])/g, ' $1') // Add space before capital letters for camelCase fields
+            .replace(/([A-Z])/g, ' $1')
             .trim();
           return `${formattedField}: ${errors.join(', ')}`;
         }
@@ -68,14 +66,14 @@ export async function handleGenerateComparison(
 
   try {
     const result = await generateCodeExamples(input);
-    if (result.example1 && result.example2 && result.explanation) {
+    if (result.content1 && result.content2 && result.explanation) {
         return { data: result, error: null, message: "Comparison generated successfully." };
     } else {
+        // This case might be less likely if generateCodeExamples itself throws on incomplete internal data
         return { data: null, error: "AI failed to generate a complete comparison. Please try again.", message: "Generation incomplete." };
     }
   } catch (error) {
     console.error("Error generating comparison:", error);
-    // Check if error is an instance of Error to safely access message property
     const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred.";
     return { data: null, error: `Failed to generate comparison: ${errorMessage}. Please try again later.`, message: "An unexpected error occurred." };
   }
