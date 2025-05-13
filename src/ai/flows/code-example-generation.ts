@@ -54,25 +54,15 @@ export async function generateCodeExamples(input: CodeExampleInput): Promise<Cod
   let imageUrl1: string | undefined = undefined;
   if (flowOutput.framework1Type === 'spreadsheet' && flowOutput.imagePrompt1) {
     try {
-      const {mediaArr} = await ai.generate({
-        model: 'googleai/gemini-2.0-flash-exp', // Ensure this model supports image generation
+      const { media } = await ai.generate({
+        model: 'googleai/gemini-2.0-flash-exp',
         prompt: flowOutput.imagePrompt1,
-        config: { responseModalities: ['IMAGE', 'TEXT'] }, // Request IMAGE and TEXT
+        config: { responseModalities: ['IMAGE', 'TEXT'] },
       });
-      if (mediaArr && mediaArr[0] && mediaArr[0].url) {
-        imageUrl1 = mediaArr[0].url;
+      if (media && media.url) {
+        imageUrl1 = media.url;
       } else {
-         // Fallback or warning if media is not as expected
-        const { media } = await ai.generate({
-            model: 'googleai/gemini-2.0-flash-exp',
-            prompt: flowOutput.imagePrompt1,
-            config: { responseModalities: ['IMAGE', 'TEXT'] },
-        });
-        if (media && media.url) {
-            imageUrl1 = media.url;
-        } else {
-            console.warn(`Image generation for framework 1 did not return a valid media URL. Prompt: "${flowOutput.imagePrompt1}"`);
-        }
+        console.warn(`Image generation for framework 1 did not return a valid media URL or media object. Prompt: "${flowOutput.imagePrompt1}"`);
       }
     } catch (imgError) {
       console.warn(`Failed to generate image for framework 1 (prompt: "${flowOutput.imagePrompt1}"): ${imgError}`);
@@ -82,24 +72,15 @@ export async function generateCodeExamples(input: CodeExampleInput): Promise<Cod
   let imageUrl2: string | undefined = undefined;
   if (flowOutput.framework2Type === 'spreadsheet' && flowOutput.imagePrompt2) {
     try {
-      const {mediaArr} = await ai.generate({
+      const { media } = await ai.generate({
         model: 'googleai/gemini-2.0-flash-exp',
         prompt: flowOutput.imagePrompt2,
         config: { responseModalities: ['IMAGE', 'TEXT'] },
       });
-       if (mediaArr && mediaArr[0] && mediaArr[0].url) {
-        imageUrl2 = mediaArr[0].url;
+      if (media && media.url) {
+        imageUrl2 = media.url;
       } else {
-         const { media } = await ai.generate({
-            model: 'googleai/gemini-2.0-flash-exp',
-            prompt: flowOutput.imagePrompt2,
-            config: { responseModalities: ['IMAGE', 'TEXT'] },
-        });
-        if (media && media.url) {
-            imageUrl2 = media.url;
-        } else {
-             console.warn(`Image generation for framework 2 did not return a valid media URL. Prompt: "${flowOutput.imagePrompt2}"`);
-        }
+        console.warn(`Image generation for framework 2 did not return a valid media URL or media object. Prompt: "${flowOutput.imagePrompt2}"`);
       }
     } catch (imgError) {
       console.warn(`Failed to generate image for framework 2 (prompt: "${flowOutput.imagePrompt2}"): ${imgError}`);
@@ -133,17 +114,39 @@ Component/Functionality: {{{component}}}
 Known spreadsheet-based frameworks include "Microsoft Excel", "Google Sheets", "excel", "googlesheets", "Excel", "Google Sheets".
 Analyze each framework name provided.
 
-For each framework ({{{framework1}}} and {{{framework2}}}):
-1. Determine if it is primarily 'code'-based or 'spreadsheet'-based. For example, "React" is code-based, "Microsoft Excel" is spreadsheet-based.
-2. Set 'framework1Type' and 'framework2Type' to either "code" or "spreadsheet" accordingly.
+For {{{framework1}}}:
+1. Determine if {{{framework1}}} is primarily 'code'-based or 'spreadsheet'-based. For example, "React" is code-based, "Microsoft Excel" is spreadsheet-based.
+2. Set 'framework1Type' to either "code" or "spreadsheet".
+3. If 'framework1Type' is "code":
+    - For 'content1', provide a concise, functional code example demonstrating {{{component}}} in {{{framework1}}}.
+    - Do not set 'imagePrompt1'.
+4. If 'framework1Type' is "spreadsheet":
+    - For 'content1', provide clear, step-by-step textual instructions on how to achieve {{{component}}} in {{{framework1}}}. Number the steps.
+    - For 'imagePrompt1', if an image would be helpful to illustrate the steps or the result, provide a detailed textual prompt in clear English for an image generation model. This prompt should aim to generate a realistic, screenshot-like image of the {{{framework1}}} interface (e.g., Microsoft Excel or Google Sheets), clearly showing {{{component}}} in action. The prompt must:
+        * Explicitly state the name of the spreadsheet software (e.g., "A realistic screenshot of Microsoft Excel showing...").
+        * Describe relevant UI elements like cells (e.g., A1, B2), rows, columns, the formula bar, and any sample data pertinent to {{{component}}}.
+        * Detail any formulas or specific cell content, ensuring they are highlighted or clearly visible in the description for the image.
+        * Describe a clean, easy-to-understand layout.
+        * Ensure any text depicted (like in cells or the formula bar) is described as being clear and legible.
+        * Example image prompt for {{{framework1}}} (if it's a spreadsheet software) and {{{component}}} like 'SUM function': "Realistic screenshot of a {{{framework1}}} spreadsheet. Cell C1 shows the formula '=SUM(A1:B1)' and displays the calculated sum. Cell A1 contains the number 10, cell B1 contains the number 20. The formula bar at the top clearly displays '=SUM(A1:B1)'. The active cell is C1, which shows the result '30'. Column headers A, B, C and row header 1 are visible."
+        * If an image is not suitable or a clear, detailed prompt fitting these criteria cannot be generated, omit 'imagePrompt1'.
 
-If 'frameworkXType' is "code" (e.g., for {{{framework1}}} if it's code-based):
-  - For 'contentX' (e.g., 'content1'), provide a concise and functional code example demonstrating {{{component}}} in that framework.
-  - Do not set 'imagePromptX' (e.g., 'imagePrompt1').
-
-If 'frameworkXType' is "spreadsheet" (e.g., for {{{framework1}}} if it's spreadsheet-based):
-  - For 'contentX' (e.g., 'content1'), provide clear, step-by-step textual instructions on how to achieve {{{component}}} in that spreadsheet software. Number the steps.
-  - For 'imagePromptX' (e.g., 'imagePrompt1'), if an image would be helpful to illustrate the steps or the result, provide a detailed textual prompt for an image generation model. This prompt should describe a visual representation of the spreadsheet task (e.g., "Screenshot of an Excel sheet with a VLOOKUP formula =VLOOKUP(A2, Sheet2!A:B, 2, FALSE) highlighted in the formula bar, showing data being pulled from another table named Sheet2 into cell B2. The cell A2 contains the lookup value 'ProductX'. Columns A and B on the current sheet and Sheet2 should have sample data."). If an image is not suitable or cannot be clearly described, omit 'imagePromptX'. Ensure the image prompt asks for a data URI with a MIME type and Base64 encoding.
+For {{{framework2}}}:
+1. Determine if {{{framework2}}} is primarily 'code'-based or 'spreadsheet'-based.
+2. Set 'framework2Type' to either "code" or "spreadsheet".
+3. If 'framework2Type' is "code":
+    - For 'content2', provide a concise, functional code example demonstrating {{{component}}} in {{{framework2}}}.
+    - Do not set 'imagePrompt2'.
+4. If 'framework2Type' is "spreadsheet":
+    - For 'content2', provide clear, step-by-step textual instructions on how to achieve {{{component}}} in {{{framework2}}}. Number the steps.
+    - For 'imagePrompt2', if an image would be helpful, provide a detailed textual prompt in clear English for an image generation model. This prompt should aim to generate a realistic, screenshot-like image of the {{{framework2}}} interface (e.g., Microsoft Excel or Google Sheets), clearly showing {{{component}}} in action. The prompt must:
+        * Explicitly state the name of the spreadsheet software (e.g., "A realistic screenshot of Google Sheets showing...").
+        * Describe relevant UI elements like cells (e.g., A1, B2), rows, columns, the formula bar, and any sample data pertinent to {{{component}}}.
+        * Detail any formulas or specific cell content, ensuring they are highlighted or clearly visible in the description for the image.
+        * Describe a clean, easy-to-understand layout.
+        * Ensure any text depicted (like in cells or the formula bar) is described as being clear and legible.
+        * Example image prompt for {{{framework2}}} (if it's a spreadsheet software) and {{{component}}} like 'AVERAGE function': "Realistic screenshot of a {{{framework2}}} spreadsheet. Cell D1 shows the formula '=AVERAGE(A1:C1)' and displays the result. Cells A1, B1, C1 contain sample numbers 5, 10, 15 respectively. The formula bar at the top clearly displays '=AVERAGE(A1:C1)'. The active cell is D1, which shows the result '10'. Column headers A, B, C, D and row header 1 are visible."
+        * If an image is not suitable or a clear, detailed prompt fitting these criteria cannot be generated, omit 'imagePrompt2'.
 
 Finally, for 'explanation', provide an overall comparison of how {{{framework1}}} and {{{framework2}}} handle {{{component}}}. Discuss similarities, differences, learning curves, and conceptual model shifts. Make this explanation insightful for someone familiar with one framework learning the other.
 Focus on providing practical and accurate information.
@@ -161,7 +164,6 @@ const generateCodeExamplesFlow = ai.defineFlow(
     if (!output) {
       throw new Error("AI failed to generate an output for the prompt.");
     }
-    // Ensure enum values are correctly cased if necessary, though Zod handles this.
     // Basic validation that AI returned something for content fields.
     if (!output.content1 || !output.content2 || !output.explanation) {
         throw new Error("AI output is incomplete. Missing content or explanation.");
