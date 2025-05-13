@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useActionState, useEffect, useState } from 'react';
+import { useActionState, useEffect, useState, useTransition } from 'react';
 import { Header } from '@/components/framemapper/Header';
 import { Footer } from '@/components/framemapper/Footer';
 import { FrameworkForm } from '@/components/framemapper/FrameworkForm';
@@ -18,7 +19,8 @@ const initialState: GenerateComparisonActionState = {
 };
 
 export default function Home() {
-  const [state, formAction, isActionPending] = useActionState(handleGenerateComparison, initialState);
+  const [state, formAction, isActionStatePending] = useActionState(handleGenerateComparison, initialState);
+  const [isTransitionPending, startTransition] = useTransition();
   const { toast } = useToast();
   const [currentComparison, setCurrentComparison] = useState<CodeExampleOutput | null>(null);
   const [formValues, setFormValues] = useState<{ familiarFramework: string, targetFramework: string } | null>(null);
@@ -49,9 +51,12 @@ export default function Home() {
     if (familiar && target) {
       setFormValues({ familiarFramework: familiar, targetFramework: target });
     }
-    formAction(formData);
+    startTransition(() => {
+      formAction(formData);
+    });
   };
 
+  const isEffectivelyPending = isActionStatePending || isTransitionPending;
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -64,10 +69,10 @@ export default function Home() {
           </p>
         </div>
 
-        <FrameworkForm 
-          formAction={wrappedFormAction} 
-          initialState={initialState} 
-          isActionPending={isActionPending} 
+        <FrameworkForm
+          formAction={wrappedFormAction}
+          initialState={initialState}
+          isActionPending={isEffectivelyPending}
         />
 
         {state.error && !currentComparison && ( // Show general error if no comparison is displayed yet
@@ -89,3 +94,4 @@ export default function Home() {
     </div>
   );
 }
+
