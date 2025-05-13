@@ -69,12 +69,32 @@ export async function handleGenerateComparison(
     if (result.content1 && result.content2 && result.explanation) {
         return { data: result, error: null, message: "Comparison generated successfully." };
     } else {
-        // This case might be less likely if generateCodeExamples itself throws on incomplete internal data
         return { data: null, error: "AI failed to generate a complete comparison. Please try again.", message: "Generation incomplete." };
     }
   } catch (error) {
-    console.error("Error generating comparison:", error);
-    const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred.";
-    return { data: null, error: `Failed to generate comparison: ${errorMessage}. Please try again later.`, message: "An unexpected error occurred." };
+    // Log the full error object for better server-side debugging
+    console.error("Full error object in handleGenerateComparison:", error); 
+    
+    let errorMessage = "An unexpected error occurred during comparison generation.";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    } else if (typeof error === 'string') {
+      errorMessage = error;
+    } else {
+      // Attempt to stringify if it's some other object, but be cautious
+      try {
+        errorMessage = JSON.stringify(error);
+      } catch (e) {
+        // If stringify fails, stick to generic
+        console.warn("Failed to stringify error object:", e);
+      }
+    }
+
+    return { 
+      data: null, 
+      error: `Server Error: ${errorMessage}. Please check server logs for details and try again.`, 
+      message: "An error occurred while generating the comparison."
+    };
   }
 }
+
