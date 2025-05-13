@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -12,20 +13,27 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Loader2 } from 'lucide-react';
 import type { GenerateComparisonActionState } from '@/app/actions';
 
-const formSchema = z.object({
-  familiarFramework: z.string().min(1, "Please select your familiar framework."),
-  targetFramework: z.string().min(1, "Please select the framework you want to learn.").refine(
-    (data, ctx) => {
-        // @ts-ignore TODO: Fix this type error
-        if (ctx.parent && ctx.parent.familiarFramework === data) {
-        return false;
+const formSchema = z
+  .object({
+    familiarFramework: z.string().min(1, 'Please select your familiar framework.'),
+    targetFramework: z.string().min(1, 'Please select the framework you want to learn.'),
+    componentToCompare: z.string().min(3, 'Component/functionality must be at least 3 characters long.'),
+  })
+  .refine(
+    (data) => {
+      // This validation should only fail if both frameworks are selected and are the same.
+      // If one or both are not selected (i.e., empty string from defaultValues),
+      // the individual field's min(1) validation will catch it.
+      if (data.familiarFramework && data.targetFramework) {
+        return data.familiarFramework !== data.targetFramework;
       }
       return true;
     },
-    { message: "Target framework must be different from familiar framework." }
-  ),
-  componentToCompare: z.string().min(3, "Component/functionality must be at least 3 characters long."),
-});
+    {
+      message: 'Target framework must be different from familiar framework.',
+      path: ['targetFramework'], // Apply the error to the targetFramework field
+    }
+  );
 
 type FrameworkFormValues = z.infer<typeof formSchema>;
 
@@ -59,7 +67,7 @@ const sampleFrameworks = [
 
 interface FrameworkFormProps {
   formAction: (payload: FormData) => void;
-  initialState: GenerateComparisonActionState; // This is the state from useActionState
+  initialState: GenerateComparisonActionState;
   isActionPending: boolean;
 }
 
@@ -80,26 +88,29 @@ export function FrameworkForm({ formAction, initialState, isActionPending }: Fra
       targetFramework: '',
       componentToCompare: '',
     },
-    // Set context for Zod refine to access other fields
-    context: {}, 
   });
 
   const onSubmit = (values: FrameworkFormValues) => {
-    // This function is called after react-hook-form validation passes
     const formData = new FormData();
     formData.append('familiarFramework', values.familiarFramework);
     formData.append('targetFramework', values.targetFramework);
     formData.append('componentToCompare', values.componentToCompare);
-    formAction(formData); // Call the server action
+    formAction(formData);
   };
 
-  // Watch familiarFramework to pass to targetFramework's refine context
   const familiarFrameworkValue = form.watch('familiarFramework');
+  
   React.useEffect(() => {
-    form.trigger('targetFramework'); // Re-validate targetFramework when familiarFramework changes
-    // @ts-ignore
-    form.options.context.familiarFramework = familiarFrameworkValue;
-  }, [familiarFrameworkValue, form]);
+    // When familiarFramework changes, trigger validation for targetFramework.
+    // This allows the object-level refine to run and check if frameworks are different.
+    // Only trigger if targetFramework has been touched or form submitted to avoid premature errors,
+    // or simply trigger if you want immediate feedback.
+    // For this case, let's trigger validation if familiarFramework has a value,
+    // as the refine logic handles empty states appropriately.
+    if (familiarFrameworkValue) {
+      form.trigger('targetFramework');
+    }
+  }, [familiarFrameworkValue, form.trigger]);
 
 
   return (
@@ -119,13 +130,11 @@ export function FrameworkForm({ formAction, initialState, isActionPending }: Fra
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Familiar Framework</FormLabel>
-                  <Select 
+                  <Select
                     onValueChange={(value) => {
                       field.onChange(value);
-                      // @ts-ignore
-                      form.options.context.familiarFramework = value;
-                      form.trigger('targetFramework'); // Re-validate target when familiar changes
-                    }} 
+                      // form.trigger('targetFramework'); // Removed context setting here as well
+                    }}
                     defaultValue={field.value}
                   >
                     <FormControl>
@@ -152,8 +161,8 @@ export function FrameworkForm({ formAction, initialState, isActionPending }: Fra
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Target Framework to Learn</FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
+                  <Select
+                    onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
@@ -163,7 +172,7 @@ export function FrameworkForm({ formAction, initialState, isActionPending }: Fra
                     </FormControl>
                     <SelectContent>
                       {sampleFrameworks.map((fw) => (
-                        <SelectItem key={`target-${fw.value}`} value={fw.value} disabled={fw.value === familiarFrameworkValue}>
+                        <SelectItem key={`target-${fw.value}`} value={fw.value} disabled={fw.value === familiarFrameworkValue && !!familiarFrameworkValue}>
                           {fw.label}
                         </SelectItem>
                       ))}
@@ -195,3 +204,5 @@ export function FrameworkForm({ formAction, initialState, isActionPending }: Fra
     </Card>
   );
 }
+
+    
